@@ -1,0 +1,740 @@
+\documentclass[]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\hypersetup{unicode=true,
+            pdftitle={Clustering Consumers via Topic Modeling: Application to Advertising},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{0}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+%%% Use protect on footnotes to avoid problems with footnotes in titles
+\let\rmarkdownfootnote\footnote%
+\def\footnote{\protect\rmarkdownfootnote}
+
+%%% Change title format to be more compact
+\usepackage{titling}
+
+% Create subtitle command for use in maketitle
+\newcommand{\subtitle}[1]{
+  \posttitle{
+    \begin{center}\large#1\end{center}
+    }
+}
+
+\setlength{\droptitle}{-2em}
+
+  \title{Clustering Consumers via Topic Modeling: Application to Advertising}
+    \pretitle{\vspace{\droptitle}\centering\huge}
+  \posttitle{\par}
+    \author{}
+    \preauthor{}\postauthor{}
+    \date{}
+    \predate{}\postdate{}
+  
+
+\begin{document}
+\maketitle
+
+This project poses a question from the perspective of an advertising
+agency looking to become more accurate in targeting positive messages to
+Facebook users. The agency would like to know: ``How are positive events
+and emotions communicated in short form? Are the topics and key points
+different across various demographics?'' The agency will use this
+information to better serve its advertising clients seeking to attract
+customers on Facebook. By collecting data on statuses posted by
+different demographics, the agency hopes to classify these users and
+communicate relevant ads onto their Facebook page.
+
+This project will leverage the Happy Moments data, which collects
+100,000+ responses via Amazon's Mechanical Turk to the question: ``What
+made you happy today? Reflect on the past \{24 hours\textbar{}3
+months\}, and recall three actual events that happened to you that made
+you happy. Write down your happy moment in a complete sentence. Write
+three such moments.''
+
+This project will normalize these happy moments for more consumable
+analysis, then implement a topic modeling algorithm to categorize these
+moments into different topics of conversation. Finally, this project
+will cluster the MTurk workers based on their most frequent topic of
+conversation in conjunction with relevant demographic attributes to
+provide the advertising agency with segment profiles of people that may
+post happy moment status on Facebook in the future.
+
+This project and analysis was developed with the following version of R:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{print}\NormalTok{(R.version)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##                _                           
+## platform       x86_64-w64-mingw32          
+## arch           x86_64                      
+## os             mingw32                     
+## system         x86_64, mingw32             
+## status                                     
+## major          3                           
+## minor          5.2                         
+## year           2018                        
+## month          12                          
+## day            20                          
+## svn rev        75870                       
+## language       R                           
+## version.string R version 3.5.2 (2018-12-20)
+## nickname       Eggshell Igloo
+\end{verbatim}
+
+Step \#01: Load the libraries to run the following analysis:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(dplyr)}
+\KeywordTok{library}\NormalTok{(ggplot2)}
+\KeywordTok{library}\NormalTok{(tm)}
+\KeywordTok{library}\NormalTok{(tidyr)}
+\KeywordTok{library}\NormalTok{(proxy)}
+\KeywordTok{library}\NormalTok{(topicmodels)}
+\KeywordTok{library}\NormalTok{(sqldf)}
+\KeywordTok{library}\NormalTok{(matrixStats)}
+\KeywordTok{library}\NormalTok{(ldatuning)}
+\KeywordTok{library}\NormalTok{(tidytext)}
+\KeywordTok{library}\NormalTok{(stringr)}
+\KeywordTok{library}\NormalTok{(tibble)}
+\KeywordTok{library}\NormalTok{(formattable)}
+\KeywordTok{library}\NormalTok{(purrr)}
+\end{Highlighting}
+\end{Shaded}
+
+Step \#02: Load the data sources from Happy Moments data source:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{cleaned_hm <-}\StringTok{ }\KeywordTok{read.csv}\NormalTok{(}\StringTok{'https://raw.githubusercontent.com/rit-public/HappyDB/master/happydb/data/cleaned_hm.csv'}\NormalTok{)}
+\NormalTok{demographic <-}\StringTok{ }\KeywordTok{read.csv}\NormalTok{(}\StringTok{'https://raw.githubusercontent.com/rit-public/HappyDB/master/happydb/data/demographic.csv'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Step \#03: Create the master file under the following assumptions: 1.
+Only include US moments as scope of agency's clients are based in the
+United States. 2. Limit the age range to 18-85. Amazon Turk users must
+be 18 or older to participate, and elders over 85 years old are not the
+target demographic of the agency. 3. Only include users identifying as
+male or female to simplify clustering analyses. Transformed binary for
+numerical analyses. 4. Only include users with parenthood attribute =
+yes or no. Transformed binary for numerical analyses. 5. Transformed
+marital status attribute to single or not single for targeted clustering
+analysis. Transformed binary for numerical analyses.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#create HMDB central table with appropriate filters and consolidations#}
+\NormalTok{hmdb <-}\StringTok{ }\NormalTok{cleaned_hm }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{inner_join}\NormalTok{(demographic, }\DataTypeTok{by =} \StringTok{'wid'}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{filter}\NormalTok{(country }\OperatorTok{==}\StringTok{ 'USA'}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{age =} \KeywordTok{as.numeric}\NormalTok{(age)) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{filter}\NormalTok{(age }\OperatorTok{>=}\StringTok{ }\DecValTok{18} \OperatorTok{&}\StringTok{ }\NormalTok{age }\OperatorTok{<=}\StringTok{ }\DecValTok{85}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{filter}\NormalTok{(gender }\OperatorTok{%in%}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"m"}\NormalTok{, }\StringTok{"f"}\NormalTok{)) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{gender =}\NormalTok{ (gender }\OperatorTok{==}\StringTok{ 'f'}\NormalTok{)}\OperatorTok{*}\DecValTok{1}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{filter}\NormalTok{(parenthood }\OperatorTok{%in%}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"n"}\NormalTok{, }\StringTok{"y"}\NormalTok{)) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{parenthood =}\NormalTok{ (parenthood }\OperatorTok{==}\StringTok{ 'y'}\NormalTok{)}\OperatorTok{*}\DecValTok{1}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{marital =}\NormalTok{ (marital }\OperatorTok{==}\StringTok{ 'single'}\NormalTok{)}\OperatorTok{*}\DecValTok{1}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{id =} \KeywordTok{row_number}\NormalTok{())}
+\end{Highlighting}
+\end{Shaded}
+
+Step \#04: Pre-process the happy moments so that they are better
+prepared for analysis. This includes removing extra spaces, numbers,
+stop words (as called by the tm library), and all punctuation.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#create and process a corpus of all moments in scope#}
+\NormalTok{corpus <-}\StringTok{ }\KeywordTok{VCorpus}\NormalTok{(}\KeywordTok{VectorSource}\NormalTok{(}\KeywordTok{tolower}\NormalTok{(hmdb}\OperatorTok{$}\NormalTok{cleaned_hm))) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{tm_map}\NormalTok{(removePunctuation )}\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{tm_map}\NormalTok{(removeNumbers) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{tm_map}\NormalTok{(stripWhitespace) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{tm_map}\NormalTok{(removeWords, }\KeywordTok{stopwords}\NormalTok{(}\StringTok{'english'}\NormalTok{))}
+
+\CommentTok{#stem words within each moment to obtain the core word for lookup#}
+\NormalTok{stem_hmid <-}\StringTok{ }\KeywordTok{tidy}\NormalTok{(}\KeywordTok{tm_map}\NormalTok{(corpus, stemDocument)) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{select}\NormalTok{(text)}
+
+\CommentTok{#create master list of words in the corpus - this serves as the dictionary reference document to compare the stemmed words against#}
+\NormalTok{stem_words <-}\StringTok{ }\KeywordTok{tidy}\NormalTok{(corpus) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{select}\NormalTok{(text) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{unnest_tokens}\NormalTok{(words, text)}
+
+\CommentTok{#compare the stemmed words to the list of words in the corpus - match the most common word associated with each stem and create a unique list of stems and references words#}
+\NormalTok{word_reference <-}\StringTok{ }\NormalTok{stem_hmid }\OperatorTok{%>%}
+\StringTok{                    }\KeywordTok{unnest_tokens}\NormalTok{(stems, text) }\OperatorTok{%>%}
+\StringTok{                    }\KeywordTok{bind_cols}\NormalTok{(stem_words) }\OperatorTok{%>%}
+\StringTok{                    }\KeywordTok{anti_join}\NormalTok{(stop_words, }\DataTypeTok{by =} \KeywordTok{c}\NormalTok{(}\StringTok{"words"}\NormalTok{ =}\StringTok{ "word"}\NormalTok{)) }\OperatorTok{%>%}
+\StringTok{                    }\KeywordTok{group_by}\NormalTok{(stems, words) }\OperatorTok{%>%}
+\StringTok{                    }\KeywordTok{summarize}\NormalTok{(}\DataTypeTok{freq =} \KeywordTok{n}\NormalTok{()) }\OperatorTok{%>%}
+\StringTok{                    }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{clean =}\NormalTok{ words[}\KeywordTok{which.max}\NormalTok{(freq)]) }\OperatorTok{%>%}
+\StringTok{                    }\KeywordTok{distinct}\NormalTok{(stems, clean)}
+
+\CommentTok{#leverage the cleaned unique words to re-create the happy moments with cleaned words - call the cleaned moments: processed_moment#}
+\NormalTok{processed <-}\StringTok{ }\NormalTok{stem_hmid }\OperatorTok{%>%}
+\StringTok{            }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{id =} \KeywordTok{row_number}\NormalTok{()) }\OperatorTok{%>%}
+\StringTok{            }\KeywordTok{unnest_tokens}\NormalTok{(stems, text) }\OperatorTok{%>%}
+\StringTok{            }\KeywordTok{left_join}\NormalTok{(word_reference, }\DataTypeTok{by =} \StringTok{'stems'}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{            }\KeywordTok{filter}\NormalTok{(}\OperatorTok{!}\KeywordTok{is.na}\NormalTok{(clean)) }\OperatorTok{%>%}
+\StringTok{            }\KeywordTok{group_by}\NormalTok{(id) }\OperatorTok{%>%}
+\StringTok{            }\KeywordTok{summarize}\NormalTok{(}\DataTypeTok{processed_moment =} \KeywordTok{str_c}\NormalTok{(clean, }\DataTypeTok{collapse =} \StringTok{" "}\NormalTok{))}
+
+\CommentTok{#join the processed_moment with the rest of the data available about the moment and assoicated worker - eliminate one word moments for easier processing in the document term matrix - select relevant attributes for next step analysis#}
+\NormalTok{hmdb <-}\StringTok{ }\NormalTok{hmdb }\OperatorTok{%>%}\StringTok{ }
+\StringTok{          }\KeywordTok{inner_join}\NormalTok{(processed, }\DataTypeTok{by =} \StringTok{'id'}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{          }\KeywordTok{filter}\NormalTok{(num_sentence }\OperatorTok{<=}\StringTok{ }\DecValTok{5}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{          }\KeywordTok{filter}\NormalTok{((}\KeywordTok{sapply}\NormalTok{(}\KeywordTok{strsplit}\NormalTok{(}\KeywordTok{as.character}\NormalTok{(processed_moment), }\StringTok{" "}\NormalTok{), length) }\OperatorTok{>}\StringTok{ }\DecValTok{1}\NormalTok{) }\OperatorTok{==}\StringTok{ }\OtherTok{TRUE}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{          }\KeywordTok{select}\NormalTok{(hmid, wid, id, processed_moment, num_sentence, predicted_category, }
+\NormalTok{                 age, marital, parenthood)}
+\end{Highlighting}
+\end{Shaded}
+
+Step \#05: Create a Document Term Matrix that associates all words with
+all documents in a corpus of cleaned happy moments. This is a required
+input to the Latent Dirichlet allocation (LDA) method generated in the
+next step.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#Create a corpus of processed happy moments - leverage this to create a document term matrix for all processed moments#}
+\NormalTok{corpus_processed <-}\StringTok{ }\KeywordTok{Corpus}\NormalTok{(}\KeywordTok{VectorSource}\NormalTok{(hmdb}\OperatorTok{$}\NormalTok{processed_moment)) }\CommentTok{#corpus}
+\NormalTok{dtm <-}\StringTok{ }\KeywordTok{DocumentTermMatrix}\NormalTok{(corpus_processed) }\CommentTok{#document term matrix}
+\end{Highlighting}
+\end{Shaded}
+
+Step \#06: Execute the Latent Dirichlet allocation (LDA) method with the
+tuned number of topics as discussed in step 5. The LDA method for topic
+modeling with group happy moments into topics of conversations. Below
+are parameters for the LDA model, and descriptions of why their values
+were selected in the context of the business question and data set:
+burnin: 1000 (eliminate the first 1000 iterations of the LDA model.
+Because the model randomly assignes topics to words and documents early
+on in the iterations, these iterations are not very useful and can be
+excluded.) iter: 5000 (after the first 1000 iterations, execute 5000
+iterations of the LDA model) thin: 50 (only collect every 50th iteration
+of the LDA sequence - because the difference between each individual
+iteration is small, we only need to take occasional iterations to
+converge the model.) seed: 1000,1001 (seed randomization) nstart: 2
+(execute the entire sequence twice) best: TRUE (take the best topics for
+final convergence)
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#enter parameters for LDA model and execute#}
+\KeywordTok{set.seed}\NormalTok{(}\DecValTok{3000}\NormalTok{)}
+\NormalTok{lda <-}\StringTok{ }\KeywordTok{LDA}\NormalTok{(dtm, }
+           \DataTypeTok{k =} \DecValTok{8}\NormalTok{, }
+           \DataTypeTok{method =} \StringTok{'Gibbs'}\NormalTok{,}
+           \DataTypeTok{control =} \KeywordTok{list}\NormalTok{(}\DataTypeTok{burnin =} \DecValTok{1000}\NormalTok{,}
+                          \DataTypeTok{iter =} \DecValTok{5000}\NormalTok{,}
+                          \DataTypeTok{thin =} \DecValTok{50}\NormalTok{,}
+                          \DataTypeTok{seed =} \KeywordTok{list}\NormalTok{(}\DecValTok{1000}\NormalTok{,}\DecValTok{1001}\NormalTok{),}
+                          \DataTypeTok{nstart =} \DecValTok{2}\NormalTok{,}
+                          \DataTypeTok{best =} \OtherTok{TRUE}\NormalTok{))}
+
+
+\CommentTok{#create aggregate tables out of the LDA output for easier analysis - incorporate results to master HMDB table#}
+\NormalTok{topics_words <-}\StringTok{ }\KeywordTok{tidy}\NormalTok{(lda, }\DataTypeTok{matrix =} \StringTok{'beta'}\NormalTok{)}
+\NormalTok{topics_docs <-}\StringTok{ }\KeywordTok{tidy}\NormalTok{(lda, }\DataTypeTok{matrix =} \StringTok{'gamma'}\NormalTok{)}
+\NormalTok{topics_docs <-}\StringTok{ }\NormalTok{topics_docs }\OperatorTok{%>%}\StringTok{ }\KeywordTok{spread}\NormalTok{(topic, gamma)}
+\NormalTok{topics_docs}\OperatorTok{$}\NormalTok{document <-}\StringTok{ }\KeywordTok{as.integer}\NormalTok{(topics_docs}\OperatorTok{$}\NormalTok{document)}
+\NormalTok{hmdb <-}\StringTok{ }\NormalTok{hmdb }\OperatorTok{%>%}\StringTok{ }\KeywordTok{inner_join}\NormalTok{(topics_docs, }\DataTypeTok{by =} \KeywordTok{c}\NormalTok{(}\StringTok{'id'}\NormalTok{ =}\StringTok{ 'document'}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+Step \#07: Verify that the LDA model has converged, and visualize the
+beta for the most common words in each topic. The beta for a given word
+is defined as the probability of that term being generated from that
+topic.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#identify the top terms in each topic based on their beta percentage#}
+\NormalTok{topics_words }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{group_by}\NormalTok{(topic) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{top_n}\NormalTok{(}\DecValTok{8}\NormalTok{, beta) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{ungroup}\NormalTok{() }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{arrange}\NormalTok{(topic, }\OperatorTok{-}\NormalTok{beta) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{term =} \KeywordTok{reorder}\NormalTok{(term, beta)) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{ggplot}\NormalTok{(}\KeywordTok{aes}\NormalTok{(term, beta, }\DataTypeTok{fill =} \KeywordTok{factor}\NormalTok{(topic))) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_col}\NormalTok{(}\DataTypeTok{show.legend =} \OtherTok{FALSE}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{facet_wrap}\NormalTok{(}\OperatorTok{~}\StringTok{ }\NormalTok{topic, }\DataTypeTok{scales =} \StringTok{"free"}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{coord_flip}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{main_files/figure-latex/unnamed-chunk-8-1.pdf}
+
+Step \#08: With topics created, create an MTurk level of detail data
+table that calculates the mean gamma across each topic for each WID. For
+simplification, the greatest average gamma value will be denoted the
+most common topic for that given WID. Each WID is therefore assigned one
+topic. Visualize the counts of WIDs across each of the 8 topics.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#create MTurk level of detail table - select most common topic per person in binary form#}
+\NormalTok{wid_lod <-}\StringTok{ }\NormalTok{hmdb }\OperatorTok{%>%}
+\StringTok{            }\KeywordTok{group_by}\NormalTok{(wid) }\OperatorTok{%>%}
+\StringTok{            }\KeywordTok{summarize}\NormalTok{(}\DataTypeTok{age =} \KeywordTok{max}\NormalTok{(age),}
+                      \DataTypeTok{parenthood =} \KeywordTok{max}\NormalTok{(parenthood),}
+                      \DataTypeTok{marital =} \KeywordTok{max}\NormalTok{(marital),}
+                      \DataTypeTok{topic_1 =} \KeywordTok{mean}\NormalTok{(}\StringTok{`}\DataTypeTok{1}\StringTok{`}\NormalTok{),}
+                      \DataTypeTok{topic_2 =} \KeywordTok{mean}\NormalTok{(}\StringTok{`}\DataTypeTok{2}\StringTok{`}\NormalTok{),}
+                      \DataTypeTok{topic_3 =} \KeywordTok{mean}\NormalTok{(}\StringTok{`}\DataTypeTok{3}\StringTok{`}\NormalTok{),}
+                      \DataTypeTok{topic_4 =} \KeywordTok{mean}\NormalTok{(}\StringTok{`}\DataTypeTok{4}\StringTok{`}\NormalTok{),}
+                      \DataTypeTok{topic_5 =} \KeywordTok{mean}\NormalTok{(}\StringTok{`}\DataTypeTok{5}\StringTok{`}\NormalTok{),}
+                      \DataTypeTok{topic_6 =} \KeywordTok{mean}\NormalTok{(}\StringTok{`}\DataTypeTok{6}\StringTok{`}\NormalTok{),}
+                      \DataTypeTok{topic_7 =} \KeywordTok{mean}\NormalTok{(}\StringTok{`}\DataTypeTok{7}\StringTok{`}\NormalTok{),}
+                      \DataTypeTok{topic_8 =} \KeywordTok{mean}\NormalTok{(}\StringTok{`}\DataTypeTok{8}\StringTok{`}\NormalTok{))}
+\NormalTok{wid_binary <-}\StringTok{ }\KeywordTok{as.data.frame}\NormalTok{(}\KeywordTok{t}\NormalTok{(}\KeywordTok{apply}\NormalTok{(wid_lod[,}\DecValTok{5}\OperatorTok{:}\DecValTok{12}\NormalTok{], }\DecValTok{1}\NormalTok{, }\ControlFlowTok{function}\NormalTok{(x) }\KeywordTok{as.numeric}\NormalTok{(x }\OperatorTok{==}\StringTok{ }\KeywordTok{max}\NormalTok{(x)))))}
+\NormalTok{wid_lod <-}\StringTok{ }\NormalTok{wid_lod }\OperatorTok{%>%}
+\StringTok{            }\KeywordTok{cbind}\NormalTok{(wid_binary) }\OperatorTok{%>%}
+\StringTok{            }\KeywordTok{select}\NormalTok{(wid, age, parenthood, marital, V1, V2, V3, V4, V5, V6, V7, V8)}
+\KeywordTok{colnames}\NormalTok{(wid_lod) <-}\StringTok{  }\KeywordTok{c}\NormalTok{(}\StringTok{'wid'}\NormalTok{, }\StringTok{'age'}\NormalTok{, }\StringTok{'parent'}\NormalTok{, }\StringTok{'single'}\NormalTok{, }\StringTok{'seeingfriends'}\NormalTok{, }\StringTok{'household'}\NormalTok{,}
+                        \StringTok{'accomplishment'}\NormalTok{, }\StringTok{'entertainment'}\NormalTok{, }\StringTok{'family'}\NormalTok{, }\StringTok{'time'}\NormalTok{, }\StringTok{'general'}\NormalTok{, }\StringTok{'food'}\NormalTok{)}
+
+\CommentTok{#remove WID as a clustering feature#}
+\KeywordTok{rownames}\NormalTok{(wid_lod) =}\StringTok{ }\NormalTok{wid_lod}\OperatorTok{$}\NormalTok{wid}
+\NormalTok{wid_lod}\OperatorTok{$}\NormalTok{wid =}\StringTok{ }\OtherTok{NULL}
+
+\CommentTok{#visualize the count of MTurk wordkers associated with each most common topic#}
+\NormalTok{wid_lod[}\DecValTok{4}\OperatorTok{:}\DecValTok{11}\NormalTok{] }\OperatorTok{%>%}\StringTok{ }\KeywordTok{mutate_all}\NormalTok{(}\KeywordTok{funs}\NormalTok{(sum), }\DataTypeTok{na.rm =} \OtherTok{TRUE}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{gather}\NormalTok{(}\DataTypeTok{key=}\NormalTok{topic, }\DataTypeTok{value=}\NormalTok{wid_count) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{ggplot}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x=}\NormalTok{topic)) }\OperatorTok{+}\StringTok{ }
+\StringTok{  }\KeywordTok{geom_bar}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ topic, }\DataTypeTok{y =}\NormalTok{ wid_count), }\DataTypeTok{fill =} \StringTok{'navy'}\NormalTok{, }\DataTypeTok{position =} \StringTok{"dodge"}\NormalTok{, }\DataTypeTok{stat =} \StringTok{"identity"}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_text}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{y =}\NormalTok{ wid_count, }\DataTypeTok{label =}\NormalTok{ wid_count), }\DataTypeTok{nudge_y =} \DecValTok{75}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{coord_flip}\NormalTok{() }\OperatorTok{+}
+\StringTok{  }\KeywordTok{ggtitle}\NormalTok{(}\StringTok{'Count of MTurk Workers by Most Common Topic Classification'}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{ylab}\NormalTok{(}\StringTok{'Count of MTurk Workers'}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{xlab}\NormalTok{(}\StringTok{'Topics'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{main_files/figure-latex/unnamed-chunk-9-1.pdf} Step
+\#09: Test for the appropriate number of clusters of MTurk workers based
+on their topic classifications and selected demographic data (age,
+marital status, parenthood status). This tests different k (number of
+clusters) in a K-Means model and examines the between sum-of-squares
+(distance between different clusters) and the within sum-of-squares
+(distance within data points in a single cluster). The optimal solution
+maximizes the between sum-of-squares and minimizes the within
+sum-of-squares, while using the lowest number of clusters for user
+consumption. This logic will recommend using six clusters.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#test different values of K#}
+\NormalTok{iterations <-}\StringTok{ }\KeywordTok{tibble}\NormalTok{(}\DataTypeTok{k =} \DecValTok{1}\OperatorTok{:}\DecValTok{15}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}
+    \DataTypeTok{kclust =} \KeywordTok{map}\NormalTok{(k, }\OperatorTok{~}\KeywordTok{kmeans}\NormalTok{(wid_lod, .x)),}
+    \DataTypeTok{glanced =} \KeywordTok{map}\NormalTok{(kclust, glance))}
+\NormalTok{iterations }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{unnest}\NormalTok{(glanced, }\DataTypeTok{.drop =} \OtherTok{TRUE}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{ggplot}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ k)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_line}\NormalTok{(}\DataTypeTok{size =} \DecValTok{2}\NormalTok{, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{y =}\NormalTok{ tot.withinss, }\DataTypeTok{color =} \StringTok{'within SS'}\NormalTok{)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_line}\NormalTok{(}\DataTypeTok{size =} \DecValTok{2}\NormalTok{, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{y =}\NormalTok{ betweenss, }\DataTypeTok{color =} \StringTok{'between SS'}\NormalTok{)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_vline}\NormalTok{(}\DataTypeTok{size =} \FloatTok{1.5}\NormalTok{, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{xintercept =} \DecValTok{6}\NormalTok{)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{ggtitle}\NormalTok{(}\StringTok{'Between vs. Within Sum of Squares Cluster Comparison'}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{ylab}\NormalTok{(}\StringTok{'Sum of Squares'}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{xlab}\NormalTok{(}\StringTok{'K (# of Clusters)'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{main_files/figure-latex/unnamed-chunk-10-1.pdf}
+
+Step \#10: Conduct K-Means cluster analysis on the MTurk workers
+leveraging their topics and demographic data points. Gender was not
+included as to focus less on gender specific clustering and happy
+moments and focus more on life stages and how these topics drive
+conversation. Relevant parameter descriptions are provided below for
+reference: seed = to ensure reproducibility k = 6 (number of clusters as
+determined from pervious step) method = Hartigan-Wong (common K-Means
+algorithm)
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#execute clusters for given value of K#}
+\KeywordTok{set.seed}\NormalTok{(}\DecValTok{5000}\NormalTok{)}
+\NormalTok{wid_clusters <-}\StringTok{ }\KeywordTok{kmeans}\NormalTok{(wid_lod, }\DecValTok{6}\NormalTok{, }\DataTypeTok{iter.max =} \DecValTok{10}\NormalTok{, }\DataTypeTok{nstart =} \DecValTok{1}\NormalTok{,}
+       \DataTypeTok{algorithm =} \KeywordTok{c}\NormalTok{(}\StringTok{"Hartigan-Wong"}\NormalTok{), }\DataTypeTok{trace=}\OtherTok{FALSE}\NormalTok{)}
+
+\CommentTok{#create summary cluster table and format#}
+\NormalTok{cluster_summary <-}\StringTok{ }\KeywordTok{as.data.frame}\NormalTok{(wid_clusters}\OperatorTok{$}\NormalTok{centers)}
+\NormalTok{cluster_summary <-}\StringTok{ }\NormalTok{cluster_summary }\OperatorTok{%>%}
+\StringTok{                    }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{people =} \KeywordTok{c}\NormalTok{(}\DecValTok{1225}\NormalTok{,}\DecValTok{1602}\NormalTok{,}\DecValTok{804}\NormalTok{,}\DecValTok{571}\NormalTok{,}\DecValTok{1879}\NormalTok{,}\DecValTok{1163}\NormalTok{)) }\OperatorTok{%>%}
+\StringTok{                    }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{names=}\KeywordTok{c}\NormalTok{(}\StringTok{'striving_careers'}\NormalTok{,}
+                                   \StringTok{'early_parents'}\NormalTok{,}
+                                   \StringTok{'early_retirees'}\NormalTok{,}
+                                   \StringTok{'family_heads'}\NormalTok{,}
+                                   \StringTok{'fresh_grads'}\NormalTok{,}
+                                   \StringTok{'young_professionals'}\NormalTok{))}
+
+\CommentTok{#normalize summary fields for consumable view#}
+\NormalTok{cluster_summary <-}\StringTok{ }\NormalTok{cluster_summary[,}\KeywordTok{c}\NormalTok{(}\DecValTok{13}\NormalTok{,}\DecValTok{12}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{,}\DecValTok{3}\NormalTok{,}\DecValTok{4}\NormalTok{,}\DecValTok{5}\NormalTok{,}\DecValTok{6}\NormalTok{,}\DecValTok{7}\NormalTok{,}\DecValTok{8}\NormalTok{,}\DecValTok{9}\NormalTok{,}\DecValTok{10}\NormalTok{,}\DecValTok{11}\NormalTok{)]}
+\NormalTok{cluster_summary}\OperatorTok{$}\NormalTok{age <-}\StringTok{ }\KeywordTok{round}\NormalTok{(cluster_summary}\OperatorTok{$}\NormalTok{age, }\DataTypeTok{digits =} \DecValTok{1}\NormalTok{)}
+\NormalTok{cluster_summary}\OperatorTok{$}\NormalTok{parent <-}\StringTok{ }\KeywordTok{round}\NormalTok{(cluster_summary}\OperatorTok{$}\NormalTok{parent, }\DataTypeTok{digits =} \DecValTok{2}\NormalTok{)}
+\NormalTok{cluster_summary}\OperatorTok{$}\NormalTok{single <-}\StringTok{ }\KeywordTok{round}\NormalTok{(cluster_summary}\OperatorTok{$}\NormalTok{single, }\DataTypeTok{digits =} \DecValTok{2}\NormalTok{)}
+\NormalTok{cluster_summary}\OperatorTok{$}\NormalTok{seeingfriends <-}\StringTok{ }\KeywordTok{round}\NormalTok{(cluster_summary}\OperatorTok{$}\NormalTok{seeingfriends, }\DataTypeTok{digits =} \DecValTok{4}\NormalTok{)}
+\NormalTok{cluster_summary}\OperatorTok{$}\NormalTok{household <-}\StringTok{ }\KeywordTok{round}\NormalTok{(cluster_summary}\OperatorTok{$}\NormalTok{household, }\DataTypeTok{digits =} \DecValTok{4}\NormalTok{)}
+\NormalTok{cluster_summary}\OperatorTok{$}\NormalTok{accomplishment <-}\StringTok{ }\KeywordTok{round}\NormalTok{(cluster_summary}\OperatorTok{$}\NormalTok{accomplishment, }\DataTypeTok{digits =} \DecValTok{4}\NormalTok{)}
+\NormalTok{cluster_summary}\OperatorTok{$}\NormalTok{entertainment <-}\StringTok{ }\KeywordTok{round}\NormalTok{(cluster_summary}\OperatorTok{$}\NormalTok{entertainment, }\DataTypeTok{digits =} \DecValTok{4}\NormalTok{)}
+\NormalTok{cluster_summary}\OperatorTok{$}\NormalTok{family <-}\StringTok{ }\KeywordTok{round}\NormalTok{(cluster_summary}\OperatorTok{$}\NormalTok{family, }\DataTypeTok{digits =} \DecValTok{4}\NormalTok{)}
+\NormalTok{cluster_summary}\OperatorTok{$}\NormalTok{time <-}\StringTok{ }\KeywordTok{round}\NormalTok{(cluster_summary}\OperatorTok{$}\NormalTok{time, }\DataTypeTok{digits =} \DecValTok{4}\NormalTok{)}
+\NormalTok{cluster_summary}\OperatorTok{$}\NormalTok{general <-}\StringTok{ }\KeywordTok{round}\NormalTok{(cluster_summary}\OperatorTok{$}\NormalTok{general, }\DataTypeTok{digits =} \DecValTok{4}\NormalTok{)}
+\NormalTok{cluster_summary}\OperatorTok{$}\NormalTok{food <-}\StringTok{ }\KeywordTok{round}\NormalTok{(cluster_summary}\OperatorTok{$}\NormalTok{food, }\DataTypeTok{digits =} \DecValTok{4}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Step \#11: Format and display the cluster output for advertising agency
+analysis. This table provides details about each MTurk Worker segment,
+including the \% of workers in that segment by most common topic. While
+the percentages across each topic and cluster do not vary drastically,
+there are notable differences across segments and topics that the agency
+can use to inform their ad presence online. At scale on a platform like
+Facebook, knowing that a particular segment gains happiness from a
+partiular topic more than others is extremely valuable for positive
+ethos flavored advertising.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{formattable}\NormalTok{(cluster_summary, }
+            \DataTypeTok{align =} \KeywordTok{c}\NormalTok{(}\StringTok{'l'}\NormalTok{,}\StringTok{'c'}\NormalTok{,}\StringTok{'c'}\NormalTok{,}\StringTok{'c'}\NormalTok{,}\StringTok{'c'}\NormalTok{,}\StringTok{'c'}\NormalTok{,}\StringTok{'c'}\NormalTok{,}\StringTok{'c'}\NormalTok{,}\StringTok{'c'}\NormalTok{,}\StringTok{'c'}\NormalTok{,}\StringTok{'c'}\NormalTok{,}\StringTok{'c'}\NormalTok{,}\StringTok{'c'}\NormalTok{),}
+            \KeywordTok{list}\NormalTok{(}\StringTok{`}\DataTypeTok{names}\StringTok{`}\NormalTok{ =}\StringTok{ }\KeywordTok{formatter}\NormalTok{(}\StringTok{"span"}\NormalTok{, }\DataTypeTok{style =} \OperatorTok{~}\StringTok{ }\KeywordTok{style}\NormalTok{(}\DataTypeTok{color =} \StringTok{"grey"}\NormalTok{,}\DataTypeTok{font.weight =} \StringTok{"bold"}\NormalTok{)),}
+                  \StringTok{`}\DataTypeTok{seeingfriends}\StringTok{`}\NormalTok{ =}\StringTok{ }\KeywordTok{color_tile}\NormalTok{(}\StringTok{'#ff7f7f'}\NormalTok{, }\StringTok{'#71CA97'}\NormalTok{),}
+                  \StringTok{`}\DataTypeTok{household}\StringTok{`}\NormalTok{ =}\StringTok{ }\KeywordTok{color_tile}\NormalTok{(}\StringTok{'#ff7f7f'}\NormalTok{, }\StringTok{'#71CA97'}\NormalTok{),}
+                  \StringTok{`}\DataTypeTok{accomplishment}\StringTok{`}\NormalTok{ =}\StringTok{ }\KeywordTok{color_tile}\NormalTok{(}\StringTok{'#ff7f7f'}\NormalTok{, }\StringTok{'#71CA97'}\NormalTok{),}
+                  \StringTok{`}\DataTypeTok{entertainment}\StringTok{`}\NormalTok{ =}\StringTok{ }\KeywordTok{color_tile}\NormalTok{(}\StringTok{'#ff7f7f'}\NormalTok{, }\StringTok{'#71CA97'}\NormalTok{),}
+                  \StringTok{`}\DataTypeTok{family}\StringTok{`}\NormalTok{ =}\StringTok{ }\KeywordTok{color_tile}\NormalTok{(}\StringTok{'#ff7f7f'}\NormalTok{, }\StringTok{'#71CA97'}\NormalTok{),}
+                  \StringTok{`}\DataTypeTok{time}\StringTok{`}\NormalTok{ =}\StringTok{ }\KeywordTok{color_tile}\NormalTok{(}\StringTok{'#ff7f7f'}\NormalTok{, }\StringTok{'#71CA97'}\NormalTok{),}
+                  \StringTok{`}\DataTypeTok{general}\StringTok{`}\NormalTok{ =}\StringTok{ }\KeywordTok{color_tile}\NormalTok{(}\StringTok{'#ff7f7f'}\NormalTok{, }\StringTok{'#71CA97'}\NormalTok{),}
+                  \StringTok{`}\DataTypeTok{food}\StringTok{`}\NormalTok{ =}\StringTok{ }\KeywordTok{color_tile}\NormalTok{(}\StringTok{'#ff7f7f'}\NormalTok{, }\StringTok{'#71CA97'}\NormalTok{)))}
+\end{Highlighting}
+\end{Shaded}
+
+names
+
+people
+
+age
+
+parent
+
+single
+
+seeingfriends
+
+household
+
+accomplishment
+
+entertainment
+
+family
+
+time
+
+general
+
+food
+
+{striving\_careers }
+
+1225
+
+47.3
+
+0.60
+
+0.33
+
+{0.1273}
+
+{0.1216}
+
+{0.1567}
+
+{0.1437}
+
+{0.1233}
+
+{0.1143}
+
+{0.0890}
+
+{0.1486}
+
+{early\_parents }
+
+1602
+
+37.8
+
+0.48
+
+0.42
+
+{0.1261}
+
+{0.1292}
+
+{0.1542}
+
+{0.1417}
+
+{0.1105}
+
+{0.1242}
+
+{0.0874}
+
+{0.1517}
+
+{early\_retirees }
+
+804
+
+61.2
+
+0.69
+
+0.27
+
+{0.1331}
+
+{0.1381}
+
+{0.1318}
+
+{0.1493}
+
+{0.1480}
+
+{0.1082}
+
+{0.0759}
+
+{0.1393}
+
+{family\_heads }
+
+571
+
+77.3
+
+0.74
+
+0.19
+
+{0.1156}
+
+{0.1366}
+
+{0.1541}
+
+{0.1349}
+
+{0.1436}
+
+{0.0981}
+
+{0.0911}
+
+{0.1331}
+
+{fresh\_grads }
+
+1879
+
+22.6
+
+0.17
+
+0.75
+
+{0.1304}
+
+{0.1086}
+
+{0.1613}
+
+{0.1575}
+
+{0.1261}
+
+{0.1075}
+
+{0.0761}
+
+{0.1543}
+
+{young\_professionals}
+
+1163
+
+29.5
+
+0.33
+
+0.59
+
+{0.1273}
+
+{0.1376}
+
+{0.1625}
+
+{0.1410}
+
+{0.1204}
+
+{0.1118}
+
+{0.0894}
+
+{0.1290}
+
+Brief anecdotes about the clusters (sorted by average age) ``Fresh
+Grads'' - an average age of 22, these individuals find happiness in
+accomplishment, friends, and food topics. They are not very concerned
+with events happening in their household, because they likely are not
+the head of household (only 17\% are parents).
+
+``Young Professionals'' - these individuals find happiness in topics
+surrounding their achievements and their household activities more than
+other clusters. These are younger individuals who are likely progressing
+quickly in both their professional and personal lives.
+
+``Early Parents'' - these are younger parents who find happiness in
+spending time with their loved ones or on their own.
+
+``Striving Careers'' - these are middle-aged individuals gaining
+happiness from achievements in their life, career or otherwise.
+
+``Early Retirees'' - these individuals average 60 years old, and find
+happiness in spending time with friends more than other segments.
+Additionally, they are interested in their families and household
+activities, likely finding more time to re-connect.
+
+``Family Heads'' - the oldest cluster speaks more about family and
+events in the household than other segments. These individuals are
+likely retired grandparents who gain happiness from their family tree
+and spending quality time together.
+
+Step \#12: Export WID details for advertising agency and further
+analysis. Please update path to relevant project path for export.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#write MTurk extract and cluster IDs out#}
+\KeywordTok{write.csv}\NormalTok{(wid_lod, }\StringTok{'C:/Users/mkars/Documents/GitHub/Spring2019-Proj1-mkarsok/output/wid_lod.csv'}\NormalTok{)}
+\CommentTok{#write master moments file out#}
+\KeywordTok{write.csv}\NormalTok{(hmdb, }\StringTok{'C:/Users/mkars/Documents/GitHub/Spring2019-Proj1-mkarsok/output/hmdb.csv'}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+citations: topic modeling:
+\url{https://cfss.uchicago.edu/fall2016/text02.html} Happy Moments info:
+\url{https://rit-public.github.io/HappyDB/} Data: Akari Asai, Sara
+Evensen, Behzad Golshan, Alon Halevy, Vivian Li, Andrei Lopatenko,
+Daniela Stepanov, Yoshihiko Suhara, Wang-Chiew Tan, Yinzhan Xu, HappyDB:
+A Corpus of 100,000 Crowdsourced Happy Moments'', LREC '18, May 2018.
+
+
+\end{document}

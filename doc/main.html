@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+
+
+<title>Clustering Consumers via Topic Modeling: Application to Advertising</title>
+
+<script src="main_files/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="main_files/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="main_files/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="main_files/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="main_files/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="main_files/navigation-1.1/tabsets.js"></script>
+<link href="main_files/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="main_files/highlightjs-9.12.0/highlight.js"></script>
+<link href="main_files/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
+<script src="main_files/pagedtable-1.1/js/pagedtable.js"></script>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+
+<div class="container-fluid main-container">
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+
+
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Clustering Consumers via Topic Modeling: Application to Advertising</h1>
+
+</div>
+
+
+<p>This project poses a question from the perspective of an advertising agency looking to become more accurate in targeting positive messages to Facebook users. The agency would like to know: “How are positive events and emotions communicated in short form? Are the topics and key points different across various demographics?” The agency will use this information to better serve its advertising clients seeking to attract customers on Facebook. By collecting data on statuses posted by different demographics, the agency hopes to classify these users and communicate relevant ads onto their Facebook page.</p>
+<p>This project will leverage the Happy Moments data, which collects 100,000+ responses via Amazon’s Mechanical Turk to the question: “What made you happy today? Reflect on the past {24 hours|3 months}, and recall three actual events that happened to you that made you happy. Write down your happy moment in a complete sentence. Write three such moments.”</p>
+<p>This project will normalize these happy moments for more consumable analysis, then implement a topic modeling algorithm to categorize these moments into different topics of conversation. Finally, this project will cluster the MTurk workers based on their most frequent topic of conversation in conjunction with relevant demographic attributes to provide the advertising agency with segment profiles of people that may post happy moment status on Facebook in the future.</p>
+<p>This project and analysis was developed with the following version of R:</p>
+<pre class="r"><code>print(R.version)</code></pre>
+<pre><code>##                _                           
+## platform       x86_64-w64-mingw32          
+## arch           x86_64                      
+## os             mingw32                     
+## system         x86_64, mingw32             
+## status                                     
+## major          3                           
+## minor          5.2                         
+## year           2018                        
+## month          12                          
+## day            20                          
+## svn rev        75870                       
+## language       R                           
+## version.string R version 3.5.2 (2018-12-20)
+## nickname       Eggshell Igloo</code></pre>
+<p>Step #01: Load the libraries to run the following analysis:</p>
+<pre class="r"><code>library(dplyr)
+library(ggplot2)
+library(tm)
+library(tidyr)
+library(proxy)
+library(topicmodels)
+library(sqldf)
+library(matrixStats)
+library(ldatuning)
+library(tidytext)
+library(stringr)
+library(tibble)
+library(formattable)
+library(purrr)</code></pre>
+<p>Step #02: Load the data sources from Happy Moments data source:</p>
+<pre class="r"><code>cleaned_hm &lt;- read.csv(&#39;https://raw.githubusercontent.com/rit-public/HappyDB/master/happydb/data/cleaned_hm.csv&#39;)
+demographic &lt;- read.csv(&#39;https://raw.githubusercontent.com/rit-public/HappyDB/master/happydb/data/demographic.csv&#39;)</code></pre>
+<p>Step #03: Create the master file under the following assumptions: 1. Only include US moments as scope of agency’s clients are based in the United States. 2. Limit the age range to 18-85. Amazon Turk users must be 18 or older to participate, and elders over 85 years old are not the target demographic of the agency. 3. Only include users identifying as male or female to simplify clustering analyses. Transformed binary for numerical analyses. 4. Only include users with parenthood attribute = yes or no. Transformed binary for numerical analyses. 5. Transformed marital status attribute to single or not single for targeted clustering analysis. Transformed binary for numerical analyses.</p>
+<pre class="r"><code>#create HMDB central table with appropriate filters and consolidations#
+hmdb &lt;- cleaned_hm %&gt;%
+  inner_join(demographic, by = &#39;wid&#39;) %&gt;%
+  filter(country == &#39;USA&#39;) %&gt;%
+  mutate(age = as.numeric(age)) %&gt;%
+  filter(age &gt;= 18 &amp; age &lt;= 85) %&gt;%
+  filter(gender %in% c(&quot;m&quot;, &quot;f&quot;)) %&gt;%
+  mutate(gender = (gender == &#39;f&#39;)*1) %&gt;%
+  filter(parenthood %in% c(&quot;n&quot;, &quot;y&quot;)) %&gt;%
+  mutate(parenthood = (parenthood == &#39;y&#39;)*1) %&gt;%
+  mutate(marital = (marital == &#39;single&#39;)*1) %&gt;%
+  mutate(id = row_number())</code></pre>
+<p>Step #04: Pre-process the happy moments so that they are better prepared for analysis. This includes removing extra spaces, numbers, stop words (as called by the tm library), and all punctuation.</p>
+<pre class="r"><code>#create and process a corpus of all moments in scope#
+corpus &lt;- VCorpus(VectorSource(tolower(hmdb$cleaned_hm))) %&gt;%
+  tm_map(removePunctuation )%&gt;%
+  tm_map(removeNumbers) %&gt;%
+  tm_map(stripWhitespace) %&gt;%
+  tm_map(removeWords, stopwords(&#39;english&#39;))
+
+#stem words within each moment to obtain the core word for lookup#
+stem_hmid &lt;- tidy(tm_map(corpus, stemDocument)) %&gt;%
+  select(text)
+
+#create master list of words in the corpus - this serves as the dictionary reference document to compare the stemmed words against#
+stem_words &lt;- tidy(corpus) %&gt;%
+  select(text) %&gt;%
+  unnest_tokens(words, text)
+
+#compare the stemmed words to the list of words in the corpus - match the most common word associated with each stem and create a unique list of stems and references words#
+word_reference &lt;- stem_hmid %&gt;%
+                    unnest_tokens(stems, text) %&gt;%
+                    bind_cols(stem_words) %&gt;%
+                    anti_join(stop_words, by = c(&quot;words&quot; = &quot;word&quot;)) %&gt;%
+                    group_by(stems, words) %&gt;%
+                    summarize(freq = n()) %&gt;%
+                    mutate(clean = words[which.max(freq)]) %&gt;%
+                    distinct(stems, clean)
+
+#leverage the cleaned unique words to re-create the happy moments with cleaned words - call the cleaned moments: processed_moment#
+processed &lt;- stem_hmid %&gt;%
+            mutate(id = row_number()) %&gt;%
+            unnest_tokens(stems, text) %&gt;%
+            left_join(word_reference, by = &#39;stems&#39;) %&gt;%
+            filter(!is.na(clean)) %&gt;%
+            group_by(id) %&gt;%
+            summarize(processed_moment = str_c(clean, collapse = &quot; &quot;))
+
+#join the processed_moment with the rest of the data available about the moment and assoicated worker - eliminate one word moments for easier processing in the document term matrix - select relevant attributes for next step analysis#
+hmdb &lt;- hmdb %&gt;% 
+          inner_join(processed, by = &#39;id&#39;) %&gt;%
+          filter(num_sentence &lt;= 5) %&gt;%
+          filter((sapply(strsplit(as.character(processed_moment), &quot; &quot;), length) &gt; 1) == TRUE) %&gt;%
+          select(hmid, wid, id, processed_moment, num_sentence, predicted_category, 
+                 age, marital, parenthood)</code></pre>
+<p>Step #05: Create a Document Term Matrix that associates all words with all documents in a corpus of cleaned happy moments. This is a required input to the Latent Dirichlet allocation (LDA) method generated in the next step.</p>
+<pre class="r"><code>#Create a corpus of processed happy moments - leverage this to create a document term matrix for all processed moments#
+corpus_processed &lt;- Corpus(VectorSource(hmdb$processed_moment)) #corpus
+dtm &lt;- DocumentTermMatrix(corpus_processed) #document term matrix</code></pre>
+<p>Step #06: Execute the Latent Dirichlet allocation (LDA) method with the tuned number of topics as discussed in step 5. The LDA method for topic modeling with group happy moments into topics of conversations. Below are parameters for the LDA model, and descriptions of why their values were selected in the context of the business question and data set: burnin: 1000 (eliminate the first 1000 iterations of the LDA model. Because the model randomly assignes topics to words and documents early on in the iterations, these iterations are not very useful and can be excluded.) iter: 5000 (after the first 1000 iterations, execute 5000 iterations of the LDA model) thin: 50 (only collect every 50th iteration of the LDA sequence - because the difference between each individual iteration is small, we only need to take occasional iterations to converge the model.) seed: 1000,1001 (seed randomization) nstart: 2 (execute the entire sequence twice) best: TRUE (take the best topics for final convergence)</p>
+<pre class="r"><code>#enter parameters for LDA model and execute#
+set.seed(3000)
+lda &lt;- LDA(dtm, 
+           k = 8, 
+           method = &#39;Gibbs&#39;,
+           control = list(burnin = 1000,
+                          iter = 5000,
+                          thin = 50,
+                          seed = list(1000,1001),
+                          nstart = 2,
+                          best = TRUE))
+
+
+#create aggregate tables out of the LDA output for easier analysis - incorporate results to master HMDB table#
+topics_words &lt;- tidy(lda, matrix = &#39;beta&#39;)
+topics_docs &lt;- tidy(lda, matrix = &#39;gamma&#39;)
+topics_docs &lt;- topics_docs %&gt;% spread(topic, gamma)
+topics_docs$document &lt;- as.integer(topics_docs$document)
+hmdb &lt;- hmdb %&gt;% inner_join(topics_docs, by = c(&#39;id&#39; = &#39;document&#39;))</code></pre>
+<p>Step #07: Verify that the LDA model has converged, and visualize the beta for the most common words in each topic. The beta for a given word is defined as the probability of that term being generated from that topic.</p>
+<pre class="r"><code>#identify the top terms in each topic based on their beta percentage#
+topics_words %&gt;%
+  group_by(topic) %&gt;%
+  top_n(8, beta) %&gt;%
+  ungroup() %&gt;%
+  arrange(topic, -beta) %&gt;%
+  mutate(term = reorder(term, beta)) %&gt;%
+  ggplot(aes(term, beta, fill = factor(topic))) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ topic, scales = &quot;free&quot;) +
+  coord_flip()</code></pre>
+<p><img src="main_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<p>Step #08: With topics created, create an MTurk level of detail data table that calculates the mean gamma across each topic for each WID. For simplification, the greatest average gamma value will be denoted the most common topic for that given WID. Each WID is therefore assigned one topic. Visualize the counts of WIDs across each of the 8 topics.</p>
+<pre class="r"><code>#create MTurk level of detail table - select most common topic per person in binary form#
+wid_lod &lt;- hmdb %&gt;%
+            group_by(wid) %&gt;%
+            summarize(age = max(age),
+                      parenthood = max(parenthood),
+                      marital = max(marital),
+                      topic_1 = mean(`1`),
+                      topic_2 = mean(`2`),
+                      topic_3 = mean(`3`),
+                      topic_4 = mean(`4`),
+                      topic_5 = mean(`5`),
+                      topic_6 = mean(`6`),
+                      topic_7 = mean(`7`),
+                      topic_8 = mean(`8`))
+wid_binary &lt;- as.data.frame(t(apply(wid_lod[,5:12], 1, function(x) as.numeric(x == max(x)))))
+wid_lod &lt;- wid_lod %&gt;%
+            cbind(wid_binary) %&gt;%
+            select(wid, age, parenthood, marital, V1, V2, V3, V4, V5, V6, V7, V8)
+colnames(wid_lod) &lt;-  c(&#39;wid&#39;, &#39;age&#39;, &#39;parent&#39;, &#39;single&#39;, &#39;seeingfriends&#39;, &#39;household&#39;,
+                        &#39;accomplishment&#39;, &#39;entertainment&#39;, &#39;family&#39;, &#39;time&#39;, &#39;general&#39;, &#39;food&#39;)
+
+#remove WID as a clustering feature#
+rownames(wid_lod) = wid_lod$wid
+wid_lod$wid = NULL
+
+#visualize the count of MTurk wordkers associated with each most common topic#
+wid_lod[4:11] %&gt;% mutate_all(funs(sum), na.rm = TRUE) %&gt;%
+  gather(key=topic, value=wid_count) %&gt;% 
+  ggplot(aes(x=topic)) + 
+  geom_bar(aes(x = topic, y = wid_count), fill = &#39;navy&#39;, position = &quot;dodge&quot;, stat = &quot;identity&quot;) +
+  geom_text(aes(y = wid_count, label = wid_count), nudge_y = 75) +
+  coord_flip() +
+  ggtitle(&#39;Count of MTurk Workers by Most Common Topic Classification&#39;) +
+  ylab(&#39;Count of MTurk Workers&#39;) +
+  xlab(&#39;Topics&#39;)</code></pre>
+<p><img src="main_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<p>Step #09: Test for the appropriate number of clusters of MTurk workers based on their topic classifications and selected demographic data (age, marital status, parenthood status). This tests different k (number of clusters) in a K-Means model and examines the between sum-of-squares (distance between different clusters) and the within sum-of-squares (distance within data points in a single cluster). The optimal solution maximizes the between sum-of-squares and minimizes the within sum-of-squares, while using the lowest number of clusters for user consumption. This logic will recommend using six clusters.</p>
+<pre class="r"><code>#test different values of K#
+iterations &lt;- tibble(k = 1:15) %&gt;%
+  mutate(
+    kclust = map(k, ~kmeans(wid_lod, .x)),
+    glanced = map(kclust, glance))
+iterations %&gt;%
+  unnest(glanced, .drop = TRUE) %&gt;%
+  ggplot(aes(x = k)) +
+  geom_line(size = 2, aes(y = tot.withinss, color = &#39;within SS&#39;)) +
+  geom_line(size = 2, aes(y = betweenss, color = &#39;between SS&#39;)) +
+  geom_vline(size = 1.5, aes(xintercept = 6)) +
+  ggtitle(&#39;Between vs. Within Sum of Squares Cluster Comparison&#39;) +
+  ylab(&#39;Sum of Squares&#39;) +
+  xlab(&#39;K (# of Clusters)&#39;)</code></pre>
+<p><img src="main_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p>Step #10: Conduct K-Means cluster analysis on the MTurk workers leveraging their topics and demographic data points. Gender was not included as to focus less on gender specific clustering and happy moments and focus more on life stages and how these topics drive conversation. Relevant parameter descriptions are provided below for reference: seed = to ensure reproducibility k = 6 (number of clusters as determined from pervious step) method = Hartigan-Wong (common K-Means algorithm)</p>
+<pre class="r"><code>#execute clusters for given value of K#
+set.seed(5000)
+wid_clusters &lt;- kmeans(wid_lod, 6, iter.max = 10, nstart = 1,
+       algorithm = c(&quot;Hartigan-Wong&quot;), trace=FALSE)
+
+#create summary cluster table and format#
+cluster_summary &lt;- as.data.frame(wid_clusters$centers)
+cluster_summary &lt;- cluster_summary %&gt;%
+                    mutate(people = c(1225,1602,804,571,1879,1163)) %&gt;%
+                    mutate(names=c(&#39;striving_careers&#39;,
+                                   &#39;early_parents&#39;,
+                                   &#39;early_retirees&#39;,
+                                   &#39;family_heads&#39;,
+                                   &#39;fresh_grads&#39;,
+                                   &#39;young_professionals&#39;))
+
+#normalize summary fields for consumable view#
+cluster_summary &lt;- cluster_summary[,c(13,12,1,2,3,4,5,6,7,8,9,10,11)]
+cluster_summary$age &lt;- round(cluster_summary$age, digits = 1)
+cluster_summary$parent &lt;- round(cluster_summary$parent, digits = 2)
+cluster_summary$single &lt;- round(cluster_summary$single, digits = 2)
+cluster_summary$seeingfriends &lt;- round(cluster_summary$seeingfriends, digits = 4)
+cluster_summary$household &lt;- round(cluster_summary$household, digits = 4)
+cluster_summary$accomplishment &lt;- round(cluster_summary$accomplishment, digits = 4)
+cluster_summary$entertainment &lt;- round(cluster_summary$entertainment, digits = 4)
+cluster_summary$family &lt;- round(cluster_summary$family, digits = 4)
+cluster_summary$time &lt;- round(cluster_summary$time, digits = 4)
+cluster_summary$general &lt;- round(cluster_summary$general, digits = 4)
+cluster_summary$food &lt;- round(cluster_summary$food, digits = 4)</code></pre>
+<p>Step #11: Format and display the cluster output for advertising agency analysis. This table provides details about each MTurk Worker segment, including the % of workers in that segment by most common topic. While the percentages across each topic and cluster do not vary drastically, there are notable differences across segments and topics that the agency can use to inform their ad presence online. At scale on a platform like Facebook, knowing that a particular segment gains happiness from a partiular topic more than others is extremely valuable for positive ethos flavored advertising.</p>
+<pre class="r"><code>formattable(cluster_summary, 
+            align = c(&#39;l&#39;,&#39;c&#39;,&#39;c&#39;,&#39;c&#39;,&#39;c&#39;,&#39;c&#39;,&#39;c&#39;,&#39;c&#39;,&#39;c&#39;,&#39;c&#39;,&#39;c&#39;,&#39;c&#39;,&#39;c&#39;),
+            list(`names` = formatter(&quot;span&quot;, style = ~ style(color = &quot;grey&quot;,font.weight = &quot;bold&quot;)),
+                  `seeingfriends` = color_tile(&#39;#ff7f7f&#39;, &#39;#71CA97&#39;),
+                  `household` = color_tile(&#39;#ff7f7f&#39;, &#39;#71CA97&#39;),
+                  `accomplishment` = color_tile(&#39;#ff7f7f&#39;, &#39;#71CA97&#39;),
+                  `entertainment` = color_tile(&#39;#ff7f7f&#39;, &#39;#71CA97&#39;),
+                  `family` = color_tile(&#39;#ff7f7f&#39;, &#39;#71CA97&#39;),
+                  `time` = color_tile(&#39;#ff7f7f&#39;, &#39;#71CA97&#39;),
+                  `general` = color_tile(&#39;#ff7f7f&#39;, &#39;#71CA97&#39;),
+                  `food` = color_tile(&#39;#ff7f7f&#39;, &#39;#71CA97&#39;)))</code></pre>
+<table class="table table-condensed">
+<thead>
+<tr>
+<th style="text-align:left;">
+names
+</th>
+<th style="text-align:center;">
+people
+</th>
+<th style="text-align:center;">
+age
+</th>
+<th style="text-align:center;">
+parent
+</th>
+<th style="text-align:center;">
+single
+</th>
+<th style="text-align:center;">
+seeingfriends
+</th>
+<th style="text-align:center;">
+household
+</th>
+<th style="text-align:center;">
+accomplishment
+</th>
+<th style="text-align:center;">
+entertainment
+</th>
+<th style="text-align:center;">
+family
+</th>
+<th style="text-align:center;">
+time
+</th>
+<th style="text-align:center;">
+general
+</th>
+<th style="text-align:center;">
+food
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">striving_careers </span>
+</td>
+<td style="text-align:center;">
+1225
+</td>
+<td style="text-align:center;">
+47.3
+</td>
+<td style="text-align:center;">
+0.60
+</td>
+<td style="text-align:center;">
+0.33
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #a0b18f">0.1273</span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #c0a089">0.1216</span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #8bbb92">0.1567</span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #c79c88">0.1437</span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ce9887">0.1233</span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #a6ad8d">0.1143</span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #84bf93">0.0890</span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #90b991">0.1486</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">early_parents </span>
+</td>
+<td style="text-align:center;">
+1602
+</td>
+<td style="text-align:center;">
+37.8
+</td>
+<td style="text-align:center;">
+0.48
+</td>
+<td style="text-align:center;">
+0.42
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #a9ab8d">0.1261</span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #9bb38f">0.1292</span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #97b590">0.1542</span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #d49586">0.1417</span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ff7f7f">0.1105</span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #71ca97">0.1242</span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #93b791">0.0874</span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #7fc294">0.1517</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">early_retirees </span>
+</td>
+<td style="text-align:center;">
+804
+</td>
+<td style="text-align:center;">
+61.2
+</td>
+<td style="text-align:center;">
+0.69
+</td>
+<td style="text-align:center;">
+0.27
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #71ca97">0.1331</span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #71ca97">0.1381</span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ff7f7f">0.1318</span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #a4ae8e">0.1493</span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #71ca97">0.1480</span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #c89c88">0.1082</span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ff7f7f">0.0759</span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #c59d88">0.1393</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">family_heads </span>
+</td>
+<td style="text-align:center;">
+571
+</td>
+<td style="text-align:center;">
+77.3
+</td>
+<td style="text-align:center;">
+0.74
+</td>
+<td style="text-align:center;">
+0.19
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ff7f7f">0.1156</span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #78c695">0.1366</span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #97b590">0.1541</span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ff7f7f">0.1349</span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #81c194">0.1436</span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ff7f7f">0.0981</span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #71ca97">0.0911</span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #e78b82">0.1331</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">fresh_grads </span>
+</td>
+<td style="text-align:center;">
+1879
+</td>
+<td style="text-align:center;">
+22.6
+</td>
+<td style="text-align:center;">
+0.17
+</td>
+<td style="text-align:center;">
+0.75
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #86be93">0.1304</span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ff7f7f">0.1086</span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #76c796">0.1613</span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #71ca97">0.1575</span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #c39e88">0.1261</span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #cb9a87">0.1075</span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #fd7f7f">0.0761</span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #71ca97">0.1543</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style="color: grey; font-weight: bold">young_professionals</span>
+</td>
+<td style="text-align:center;">
+1163
+</td>
+<td style="text-align:center;">
+29.5
+</td>
+<td style="text-align:center;">
+0.33
+</td>
+<td style="text-align:center;">
+0.59
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #a0b18f">0.1273</span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #73c896">0.1376</span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #71ca97">0.1625</span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #d89385">0.1410</span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #d99285">0.1204</span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #b4a68b">0.1118</span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #80c194">0.0894</span>
+</td>
+<td style="text-align:center;">
+<span style="display: block; padding: 0 4px; border-radius: 4px; background-color: #ff7f7f">0.1290</span>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Brief anecdotes about the clusters (sorted by average age) “Fresh Grads” - an average age of 22, these individuals find happiness in accomplishment, friends, and food topics. They are not very concerned with events happening in their household, because they likely are not the head of household (only 17% are parents).</p>
+<p>“Young Professionals” - these individuals find happiness in topics surrounding their achievements and their household activities more than other clusters. These are younger individuals who are likely progressing quickly in both their professional and personal lives.</p>
+<p>“Early Parents” - these are younger parents who find happiness in spending time with their loved ones or on their own.</p>
+<p>“Striving Careers” - these are middle-aged individuals gaining happiness from achievements in their life, career or otherwise.</p>
+<p>“Early Retirees” - these individuals average 60 years old, and find happiness in spending time with friends more than other segments. Additionally, they are interested in their families and household activities, likely finding more time to re-connect.</p>
+<p>“Family Heads” - the oldest cluster speaks more about family and events in the household than other segments. These individuals are likely retired grandparents who gain happiness from their family tree and spending quality time together.</p>
+<p>Step #12: Export WID details for advertising agency and further analysis. Please update path to relevant project path for export.</p>
+<pre class="r"><code>#write MTurk extract and cluster IDs out#
+write.csv(wid_lod, &#39;C:/Users/mkars/Documents/GitHub/Spring2019-Proj1-mkarsok/output/wid_lod.csv&#39;)
+#write master moments file out#
+write.csv(hmdb, &#39;C:/Users/mkars/Documents/GitHub/Spring2019-Proj1-mkarsok/output/hmdb.csv&#39;)</code></pre>
+<p>citations:</p>
+<p>topic modeling: <a href="https://cfss.uchicago.edu/fall2016/text02.html" class="uri">https://cfss.uchicago.edu/fall2016/text02.html</a></p>
+<p>Happy Moments info: <a href="https://rit-public.github.io/HappyDB/" class="uri">https://rit-public.github.io/HappyDB/</a></p>
+<p>Data: Akari Asai, Sara Evensen, Behzad Golshan, Alon Halevy, Vivian Li, Andrei Lopatenko, Daniela Stepanov, Yoshihiko Suhara, Wang-Chiew Tan, Yinzhan Xu, HappyDB: A Corpus of 100,000 Crowdsourced Happy Moments’’, LREC ’18, May 2018.</p>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

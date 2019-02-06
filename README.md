@@ -9,10 +9,10 @@ This is the first and only *individual* (as opposed to *team*) this semester.
 
 Term: Spring 2019
 
-+ Projec title: Lorem ipsum dolor sit amet
-+ This project is conducted by [your name]
++ Projec title: 'Clustering Consumers via Topic Modeling: Application to Advertising'
++ This project is conducted by Max Karsok
 
-+ Project summary: [a short summary] Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
++ Project summary: This project poses a question from the perspective of an advertising agency looking to become more accurate in targeting positive messages to Facebook users. The agency would like to know: "How are positive events and emotions communicated in short form? Are the topics and key points different across various demographics?" The agency will use this information to better serve its advertising clients seeking to attract customers on Facebook. By collecting data on statuses posted by different demographics, the agency hopes to classify these users and communicate relevant ads onto their Facebook page. This project leverages LDA topic modeling and kmeans clustering of MTurk workers to provide segment profiles of individuals leveraging demographic data and their most common topics of conversation. 
 
 Following [suggestions](http://nicercode.github.io/blog/2013-04-05-projects/) by [RICH FITZJOHN](http://nicercode.github.io/about/#Team) (@richfitz). This folder is orgarnized as follows.
 
